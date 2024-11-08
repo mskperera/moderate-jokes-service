@@ -1,10 +1,11 @@
 const { default: axios } = require("axios");
 
+const DELIVER_JOKES_API_URL = process.env.DELIVER_JOKES_API_URL; //|| "http://localhost:3333";
+const SUBMIT_JOKES_API_URL = process.env.SUBMIT_JOKES_API_URL; //|| "http://localhost:8002";
+
 exports.getJokeTypes_srv = async () => {
   try {
-    // Make the request to the other endpoint
-    const response = await axios.get("http://localhost:3333/jokes/types");
-
+    const response = await axios.get(`${DELIVER_JOKES_API_URL}/jokes/types`);
     return response.data;
   } catch (err) {
     throw err;
@@ -14,14 +15,13 @@ exports.getJokeTypes_srv = async () => {
 exports.getNewJoke_srv = async (token) => {
   try {
     const response = await axios.get(
-      "http://localhost:8002/api/jokes/newJoke",
+      `${SUBMIT_JOKES_API_URL}/api/jokes/newJoke`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-
     return response.data;
   } catch (err) {
     console.error("Error fetching new joke:", err);
@@ -32,7 +32,7 @@ exports.getNewJoke_srv = async (token) => {
 exports.updateJoke_srv = async (token, payload, jokeId) => {
   try {
     const response = await axios.put(
-      `http://localhost:8002/api/jokes/update/${jokeId}`,
+      `${SUBMIT_JOKES_API_URL}/api/jokes/update/${jokeId}`,
       payload,
       {
         headers: {
@@ -40,10 +40,9 @@ exports.updateJoke_srv = async (token, payload, jokeId) => {
         },
       }
     );
-
     return response.data;
   } catch (err) {
-    console.error("Error fetching new joke:", err);
+    console.error("Error updating joke:", err);
     throw err;
   }
 };
@@ -51,7 +50,7 @@ exports.updateJoke_srv = async (token, payload, jokeId) => {
 exports.approveJoke_srv = async (token, jokeId) => {
   try {
     const response = await axios.put(
-      `http://localhost:8002/api/jokes/approve/${jokeId}`,
+      `${SUBMIT_JOKES_API_URL}/api/jokes/approve/${jokeId}`,
       null,
       {
         headers: {
@@ -59,10 +58,9 @@ exports.approveJoke_srv = async (token, jokeId) => {
         },
       }
     );
-
     return response.data;
   } catch (err) {
-    console.error("Error fetching new joke:", err);
+    console.error("Error approving joke:", err);
     throw err;
   }
 };
@@ -70,26 +68,24 @@ exports.approveJoke_srv = async (token, jokeId) => {
 exports.rejectJoke_srv = async (token, jokeId) => {
   try {
     const response = await axios.delete(
-      `http://localhost:8002/api/jokes/reject/${jokeId}`,
+      `${SUBMIT_JOKES_API_URL}/api/jokes/reject/${jokeId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-
     return response.data;
   } catch (err) {
-    console.error("Error fetching new joke:", err);
+    console.error("Error rejecting joke:", err);
     throw err;
   }
 };
 
-
 exports.addNewJoke_srv = async (token, payload) => {
   try {
     const response = await axios.post(
-      `http://localhost:3333/jokes/newJoke`,
+      `${DELIVER_JOKES_API_URL}/jokes/newJoke`,
       payload,
       {
         headers: {
@@ -97,23 +93,20 @@ exports.addNewJoke_srv = async (token, payload) => {
         },
       }
     );
-
     return response.data;
   } catch (err) {
-    console.error("Error fetching new joke:", err.response.data);
-    throw  JSON.stringify(err.response.data);
+    console.error("Error adding new joke:", err.response.data);
+    throw JSON.stringify(err.response.data);
   }
 };
 
-
 exports.submitToDeliverJokes_srv = async (token, jokeId) => {
   try {
-    const approveResponse = await exports.approveJoke_srv(token,jokeId);
-
-    const payload={...approveResponse.joke,type:approveResponse.joke.type,content:approveResponse.joke.content}
+    const approveResponse = await exports.approveJoke_srv(token, jokeId);
+    const payload = { ...approveResponse.joke, type: approveResponse.joke.type, content: approveResponse.joke.content };
     const addNewResponse = await exports.addNewJoke_srv(token, payload);
 
-    return {message:"Approved and submitted to the Deliver Jokes",joke:addNewResponse};
+    return { message: "Approved and submitted to the Deliver Jokes", joke: addNewResponse };
   } catch (err) {
     console.error("Error in submitToDeliverJokes:", err);
     throw err;

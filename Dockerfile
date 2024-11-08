@@ -23,7 +23,8 @@ CMD ["node", "server.js"]
 
 # commands
 # docker build -t moderate-jokes-microservice .
+# docker run -d --env-file .env -p 8001:8001 moderate-jokes-microservice
 
-# docker run -d -p 8001:8001 moderate-jokes-microservice
-
-# docker ps
+# docker ps -a
+# Stop the Running Containers: docker stop deabf4792901
+# Remove the Stopped Container: docker rm deabf4792901
